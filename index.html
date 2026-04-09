@@ -1,3 +1,6 @@
+Pet expo sync · HTML
+Copy
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -443,22 +446,20 @@ async function init() {
  
 // API
 async function api(params) {
-  var url = GAS_URL;
-  if (params.fileData) {
-    // 有檔案用 JSON POST
-    var res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
-  } else {
-    // 一般查詢用 GET
-    var res = await fetch(url + '?' + new URLSearchParams(params).toString());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
-  }
+  var url = GAS_URL + '?' + new URLSearchParams(params).toString();
+  var res = await fetch(url, { redirect: 'follow' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+ 
+async function apiPost(params) {
+  // 用 no-cors POST 繞過 CORS，但無法讀回應，改用 GET 傳 JSON
+  var jsonStr = JSON.stringify(params);
+  var encoded = encodeURIComponent(jsonStr);
+  var url = GAS_URL + '?payload=' + encoded;
+  var res = await fetch(url, { redirect: 'follow' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
 }
 async function fetchOrders() { var d = await api({action:'getOrders'}); if (!d.ok) throw new Error(d.error); orders = d.orders; }
 async function fetchStaff() { var d = await api({action:'getStaff'}); if (!d.ok) throw new Error(d.error); staffList = d.staff; }
@@ -657,19 +658,33 @@ async function submitOrder() {
   var finalFileName = uploadedFileName;
  
   try {
-    // 先上傳檔案到 Google Drive
+    // 先上傳檔案到 Google Drive（分段傳送）
     if (uploadedFileData && uploadedFileName) {
       document.getElementById('loadingText').textContent = '上傳宅配單到 Google Drive…';
-      var uploadResult = await api({
-        action: 'uploadFile',
-        fileName: uploadedFileName,
-        mimeType: uploadedFileMime,
-        fileData: uploadedFileData,
-        expoName: expoName || '未分類'
-      });
-      if (uploadResult.ok) {
-        fileUrl = uploadResult.fileUrl;
-        finalFileName = uploadResult.fileName;
+      // 分段上傳：每段 50000 字元
+      var CHUNK = 50000;
+      var total = uploadedFileData.length;
+      var chunks = Math.ceil(total / CHUNK);
+      var uploadId = Date.now().toString();
+ 
+      for (var i = 0; i < chunks; i++) {
+        var chunk = uploadedFileData.substring(i * CHUNK, (i+1) * CHUNK);
+        document.getElementById('loadingText').textContent = '上傳宅配單… (' + (i+1) + '/' + chunks + ')';
+        var chunkResult = await api({
+          action: 'uploadChunk',
+          uploadId: uploadId,
+          chunkIndex: i,
+          totalChunks: chunks,
+          fileName: uploadedFileName,
+          mimeType: uploadedFileMime,
+          expoName: expoName || '未分類',
+          chunkData: chunk
+        });
+        if (!chunkResult.ok) throw new Error(chunkResult.error || '上傳失敗');
+        if (chunkResult.fileUrl) {
+          fileUrl = chunkResult.fileUrl;
+          finalFileName = chunkResult.fileName;
+        }
       }
     }
  
