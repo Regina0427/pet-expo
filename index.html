@@ -1156,9 +1156,21 @@ async function markAllShipped(orderId, orderNo, filterYM) {
   var today = new Date().toLocaleDateString('zh-TW');
   if (orderNo) o.orderNo = orderNo;
   (o.products||[]).forEach(function(p) {
-    // 判斷此品項是否屬於該月份
+    // 判斷此品項是否屬於該月份（相容 2026-08-06 和 2026/8/6 兩種格式）
+    function getYM(dateStr) {
+      if (!dateStr) return '';
+      var s = String(dateStr);
+      // ISO 格式 2026-08-06
+      var m1 = s.match(/^(\d{4})-(\d{2})/);
+      if (m1) return m1[1] + '-' + m1[2];
+      // 斜線格式 2026/8/6
+      var m2 = s.match(/^(\d{4})\/(\d+)/);
+      if (m2) return m2[1] + '-' + String(m2[2]).padStart(2,'0');
+      return '';
+    }
+    var pYM = getYM(p.shipDate);
     var inMonth = filterYM === 'all' ||
-      (p.shipDate && p.shipDate.substring(0,7) === filterYM) ||
+      pYM === filterYM ||
       (!p.shipDate && (o.shipMonths||[]).includes(filterYM));
     if (!inMonth) return;
     p.status = 'done';
