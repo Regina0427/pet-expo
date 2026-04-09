@@ -1028,11 +1028,39 @@ function renderMonthBlock(allOrds, ym, colorIdx) {
   return html + '<div class="spacer"></div>';
 }
 
+function formatDate(val) {
+  if (!val) return '';
+  var s = String(val);
+  // 處理 ISO 格式
+  if (s.includes('T')) {
+    var d = new Date(s);
+    if (!isNaN(d)) return d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+  }
+  return s;
+}
+  if (!val) return '';
+  // 處理 ISO 格式如 2026-03-31T16:00:00.000Z
+  var s = String(val);
+  var match = s.match(/^(\d{4})-(\d{2})/);
+  if (match) return match[1] + '/' + parseInt(match[2]) + ' 月';
+  return s;
+}
+
+function formatPhone(val) {
+  if (!val) return '';
+  var s = String(val).replace(/^'+/, ''); // 去掉 GAS 加的單引號前綴
+  // 如果是純數字且開頭不是0，自動補0（台灣手機09開頭）
+  if (/^\d+$/.test(s) && s.length === 9) s = '0' + s;
+  return s;
+}
+
 function orderCardHTML(o, highlightYM, highlightProds) {
   var staffTag = o.staff ? '<span class="staff-badge">👤 '+o.staff+'</span>' : '';
+  var expoMonthDisplay = formatExpoMonth(o.expoMonth);
+  var phoneDisplay = formatPhone(o.phone);
   var expoTag = (o.expoName||o.expoMonth) ?
     '<div class="expo-info">' +
-    (o.expoMonth ? '<span style="font-size:11px;font-weight:700;color:var(--accent2);">🗓 '+o.expoMonth.replace('-','/')+'</span>' : '') +
+    (expoMonthDisplay ? '<span style="font-size:11px;font-weight:700;color:var(--accent2);">🗓 '+expoMonthDisplay+'</span>' : '') +
     (o.expoName ? '<span style="font-size:11px;font-weight:700;color:var(--accent);">🏟 '+o.expoName+'</span>' : '') +
     (o.orderNo ? '<span style="font-size:11px;color:var(--muted);">📋 '+o.orderNo+'</span>' : '') +
     '</div>' : '';
@@ -1091,8 +1119,8 @@ function orderCardHTML(o, highlightYM, highlightProds) {
   return '<div class="order-card">' +
     '<div class="order-header">' +
       '<div class="order-avatar">'+o.name[0]+'</div>' +
-      '<div><div class="order-name">'+o.name+'</div><div class="order-phone">📞 '+o.phone+'</div></div>' +
-      '<div class="order-date">'+o.date+'</div>' +
+      '<div><div class="order-name">'+o.name+'</div><div class="order-phone">📞 '+phoneDisplay+'</div></div>' +
+      '<div class="order-date">'+formatDate(o.date)+'</div>' +
     '</div>' +
     expoTag +
     (o.address ? '<div style="font-size:12px;color:var(--muted);margin-bottom:9px;">📍 '+o.address+'</div>' : '') +
@@ -1104,7 +1132,46 @@ function orderCardHTML(o, highlightYM, highlightProds) {
       (o.file ? '<a href="'+(o.fileUrl||'#')+'" target="_blank" class="file-chip" style="text-decoration:none;cursor:pointer;color:'+(o.fileUrl?'var(--accent)':'var(--muted)')+';">📎 '+o.file+(o.fileUrl?' ↗':'')+'</a>' : '') +
       '<button class="delete-order-btn" onclick="deleteOrder('+o.id+')">刪除</button>' +
     '</div>' +
+    '<div style="border-top:1px dashed var(--border);margin-top:10px;padding-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+      '<button onclick="openBulkShipModal('+o.id+')" style="padding:7px 16px;background:#f0fdf4;border:1.5px solid #16a34a;color:#16a34a;border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✅ 整筆標記已出貨 + 填鼎新單號</button>' +
+    '</div>' +
   '</div>';
+}
+
+// 整筆出貨 Modal
+function openBulkShipModal(orderId) {
+  var o = orders.find(function(x){ return String(x.id)===String(orderId); });
+  if (!o) return;
+  var orderNo = prompt('請輸入鼎新單號（可留空）：', o.orderNo||'');
+  if (orderNo === null) return; // 按取消
+  markAllShipped(orderId, orderNo.trim());
+}
+
+async function markAllShipped(orderId, orderNo) {
+  var o = orders.find(function(x){ return String(x.id)===String(orderId); });
+  if (!o) return;
+  var today = new Date().toLocaleDateString('zh-TW');
+  o.orderNo = orderNo || o.orderNo || '';
+  (o.products||[]).forEach(function(p) {
+    p.status = 'done';
+    p.orderNo = orderNo || p.orderNo || '';
+    if (!p.doneDate) p.doneDate = today;
+    if (p.splits) {
+      p.splits.forEach(function(s) {
+        s.status = 'done';
+        s.orderNo = orderNo || s.orderNo || '';
+        if (!s.doneDate) s.doneDate = today;
+      });
+    }
+  });
+  showLoading('更新中…');
+  try {
+    var d = await api({action:'updateOrder', order:JSON.stringify(o)});
+    if (!d.ok) throw new Error(d.error);
+    renderDashboard();
+    showToast('✅ 整筆已標記出貨！' + (orderNo ? ' 鼎新：'+orderNo : ''));
+  } catch { showToast('❌ 更新失敗', false); }
+  finally { hideLoading(); }
 }
 
 async function deleteOrder(id) {
@@ -1124,13 +1191,13 @@ function doSearch() {
   var container = document.getElementById('searchResult');
   if (!q || q.length < 2) { container.innerHTML='<div class="result-empty"><div class="big">🔍</div>輸入電話號碼即可查詢</div>'; return; }
   var result = orders.filter(function(o){
-    var phone = (o.phone||'').replace(/-/g,'').replace(/\s/g,'');
+    var phone = (o.phone||'').toString().replace(/^'+/, '').replace(/-/g,'').replace(/\s/g,'');
     return phone.includes(q);
   });
   if (searchStaffFilter!=='all') result=result.filter(function(o){ return o.staff===searchStaffFilter; });
   if (result.length===0) { container.innerHTML='<div class="result-empty"><div class="big">😕</div>找不到符合條件的記錄</div>'; return; }
 
-  var name=result[0].name, phone=result[0].phone;
+  var name=result[0].name, phone=formatPhone(result[0].phone);
   var staffFound=[...new Set(result.map(function(o){return o.staff;}).filter(Boolean))];
 
   // 按月份歸類品項
@@ -1184,7 +1251,7 @@ function doSearch() {
   var orderList = result.map(function(o){
     return '<div style="padding:12px 16px;background:var(--warm);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">' +
       '<div style="flex:1;">' +
-        '<div style="font-size:13px;font-weight:700;">'+o.date+' · '+(o.expoName||'未填展覽')+'</div>' +
+        '<div style="font-size:13px;font-weight:700;">'+formatDate(o.date)+' · '+(o.expoName||'未填展覽')+'</div>' +
         '<div style="font-size:12px;color:var(--muted);">'+
           (o.type==='warehouse'?'🏪 門市取貨':'🏠 宅配')+' · 👤 '+(o.staff||'-')+
           (o.orderNo?' · 📋 '+o.orderNo:'')+
