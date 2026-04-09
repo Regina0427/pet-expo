@@ -443,10 +443,22 @@ async function init() {
  
 // API
 async function api(params) {
-  var url = GAS_URL + '?' + new URLSearchParams(params).toString();
-  var res = await fetch(url);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  var url = GAS_URL;
+  if (params.fileData) {
+    // 有檔案用 JSON POST
+    var res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  } else {
+    // 一般查詢用 GET
+    var res = await fetch(url + '?' + new URLSearchParams(params).toString());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
 }
 async function fetchOrders() { var d = await api({action:'getOrders'}); if (!d.ok) throw new Error(d.error); orders = d.orders; }
 async function fetchStaff() { var d = await api({action:'getStaff'}); if (!d.ok) throw new Error(d.error); staffList = d.staff; }
@@ -561,17 +573,48 @@ var uploadedFileData = null;
 var uploadedFileMime = '';
  
 function handleFileChange(input) {
-  if (input.files[0]) {
-    var file = input.files[0];
-    uploadedFileName = file.name;
-    uploadedFileMime = file.type;
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('filePreview').classList.add('show');
-    // 讀成 base64
+  if (!input.files[0]) return;
+  var file = input.files[0];
+  uploadedFileMime = file.type;
+  uploadedFileName = file.name;
+  document.getElementById('fileName').textContent = '處理中…';
+  document.getElementById('filePreview').classList.add('show');
+ 
+  // 圖片壓縮後轉 base64
+  if (file.type.startsWith('image/')) {
     var reader = new FileReader();
     reader.onload = function(e) {
-      // 去掉 data:xxx;base64, 前綴
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var MAX = 1200;
+        var w = img.width, h = img.height;
+        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        uploadedFileData = dataUrl.split(',')[1];
+        uploadedFileMime = 'image/jpeg';
+        var sizeKB = Math.round(uploadedFileData.length * 0.75 / 1024);
+        document.getElementById('fileName').textContent = file.name + ' (' + sizeKB + ' KB)';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // PDF 直接讀，但限制 3MB
+    if (file.size > 3 * 1024 * 1024) {
+      showToast('PDF 檔案請小於 3MB', false);
+      uploadedFileName = ''; uploadedFileData = null;
+      document.getElementById('filePreview').classList.remove('show');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
       uploadedFileData = e.target.result.split(',')[1];
+      var sizeKB = Math.round(file.size / 1024);
+      document.getElementById('fileName').textContent = file.name + ' (' + sizeKB + ' KB)';
     };
     reader.readAsDataURL(file);
   }
