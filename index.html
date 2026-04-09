@@ -1,6 +1,3 @@
-Pet expo sync · HTML
-Copy
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -97,7 +94,7 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
 /* PRODUCTS */
 .products-area{margin-bottom:18px;}
 .products-area>label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
-.product-row{display:grid;grid-template-columns:1fr 80px 140px 36px;gap:7px;margin-bottom:7px;align-items:center;}
+.product-row{display:grid;grid-template-columns:28px 1fr 70px 130px 1fr 36px;gap:7px;margin-bottom:7px;align-items:center;}
 .product-row input{padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:13px;background:white;color:var(--ink);}
 .product-row input:focus{outline:none;border-color:var(--accent);}
 .col-hdr{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.5px;padding:0 3px;}
@@ -209,7 +206,7 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
   .tab-content{padding:16px 12px;}
   header{padding:12px 14px;}
   .form-card{padding:18px 14px;}
-  .product-row{grid-template-columns:1fr 70px 36px;}
+  .product-row{grid-template-columns:1fr 60px 36px;}
   .product-row input[type="date"]{display:none;}
   .col-hdr.date-col{display:none;}
   .form-2col{grid-template-columns:1fr;}
@@ -286,6 +283,39 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
   <div class="form-card">
     <div class="form-title">🐾 新增出貨記錄</div>
  
+    <!-- 客戶資料 -->
+    <div style="background:white;border-radius:12px;padding:16px 18px;margin-bottom:20px;border:1px solid var(--border);">
+      <div style="font-size:11px;font-weight:700;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">👤 客戶資料</div>
+      <div class="form-2col" style="margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">客戶姓名</label>
+          <input type="text" id="f-name" placeholder="請輸入客戶姓名" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:14px;background:white;color:var(--ink);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">聯絡電話</label>
+          <input type="text" id="f-phone" placeholder="例：0912345678" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:14px;background:white;color:var(--ink);">
+        </div>
+      </div>
+      <div class="form-2col" style="margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">出貨類型</label>
+          <select id="f-type" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:14px;background:white;color:var(--ink);">
+            <option value="home">🏠 宅配到府</option>
+            <option value="warehouse">🏪 門市取貨</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">👤 負責同仁</label>
+          <div class="staff-pills" id="staffPills"></div>
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">📍 收件地址</label>
+        <input type="text" id="f-address" placeholder="宅配請填寫收件地址" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:14px;background:white;color:var(--ink);">
+      </div>
+    </div>
+ 
+    <!-- 展覽資訊 -->
     <div class="expo-box">
       <div class="expo-box-title">🏟 展覽資訊</div>
       <div class="form-2col" style="margin-bottom:12px;">
@@ -310,42 +340,33 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
       </div>
     </div>
  
-    <div class="form-row">
-      <label>客戶姓名</label>
-      <input type="text" id="f-name" placeholder="請輸入客戶姓名">
-    </div>
-    <div class="form-row">
-      <label>聯絡電話</label>
-      <input type="tel" id="f-phone" placeholder="例：0912-345-678">
-    </div>
-    <div class="form-2col" style="margin-bottom:18px;">
-      <div>
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">出貨類型</label>
-        <select id="f-type" style="width:100%;padding:11px 15px;border:1.5px solid var(--border);border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:14px;background:white;color:var(--ink);">
-          <option value="home">🏠 宅配到府</option>
-          <option value="warehouse">🏪 門市取貨</option>
-        </select>
-      </div>
-      <div>
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">👤 負責同仁</label>
-        <div class="staff-pills" id="staffPills"></div>
-      </div>
-    </div>
-    <div class="form-row">
-      <label>📍 收件地址</label>
-      <input type="text" id="f-address" placeholder="宅配請填寫收件地址">
-    </div>
- 
     <div class="products-area">
-      <label>商品品項、數量 &amp; 預計出貨日期</label>
-      <div style="display:grid;grid-template-columns:1fr 80px 140px 36px;gap:7px;margin-bottom:5px;padding:0 2px;">
+      <label>商品品項、數量、出貨日期 &amp; 備註</label>
+ 
+      <!-- 批次設定區 -->
+      <div style="background:var(--warm);border-radius:10px;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:700;color:var(--accent2);letter-spacing:1px;margin-bottom:10px;">⚡ 批次套用出貨日期 &amp; 備註</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input type="date" id="batch-date" style="padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Noto Sans TC',sans-serif;font-size:13px;background:white;color:var(--ink);">
+          <input type="text" id="batch-note" placeholder="備註（如：第1次出貨）" style="flex:1;min-width:140px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Noto Sans TC',sans-serif;font-size:13px;background:white;color:var(--ink);">
+          <button type="button" onclick="batchApplyAll()" style="padding:8px 16px;background:var(--accent);color:white;border:none;border-radius:8px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">全部套用</button>
+          <button type="button" onclick="batchApplyChecked()" style="padding:8px 16px;background:var(--accent2);color:white;border:none;border-radius:8px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">套用勾選</button>
+        </div>
+      </div>
+ 
+      <div style="display:grid;grid-template-columns:28px 1fr 70px 130px 1fr 36px;gap:7px;margin-bottom:5px;padding:0 2px;">
+        <div><input type="checkbox" id="checkAll" onchange="toggleAllCheck(this)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);"></div>
         <div class="col-hdr">商品名稱</div>
         <div class="col-hdr">數量</div>
         <div class="col-hdr date-col">預計出貨日期</div>
+        <div class="col-hdr">備註（如：第1次出貨）</div>
         <div></div>
       </div>
       <div id="productList"></div>
-      <button class="add-product-btn" onclick="addProduct()">＋ 新增品項</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <button class="add-product-btn" onclick="addProduct()">＋ 新增品項</button>
+        <button class="add-product-btn" onclick="copyAllProducts()" style="border-color:var(--accent2);color:var(--accent2);">📋 複製全部品項</button>
+      </div>
     </div>
  
     <div class="form-row">
@@ -383,7 +404,7 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
 <!-- SEARCH -->
 <div class="tab-content" id="tab-search">
   <div class="search-bar-row">
-    <input type="tel" id="searchPhone" placeholder="輸入電話號碼查詢客戶出貨明細..." oninput="doSearch()">
+    <input type="tel" id="searchPhone" placeholder="輸入電話號碼查詢客戶出貨明細..." oninput="doSearch()" onkeyup="doSearch()">
     <button class="search-btn" onclick="doSearch()">查詢</button>
   </div>
   <div id="searchStaffFilter" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:16px;"></div>
@@ -555,13 +576,71 @@ function setExpoName(name) {
 function buildProductRow() {
   var row = document.createElement('div');
   row.className = 'product-row';
-  row.innerHTML = '<input type="text" placeholder="商品名稱">' +
+  row.innerHTML =
+    '<input type="checkbox" class="prod-check" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);margin-top:10px;">' +
+    '<input type="text" placeholder="商品名稱">' +
     '<input type="number" placeholder="數量" min="1">' +
     '<input type="date" class="date-col">' +
+    '<input type="text" placeholder="備註（如：第1次出貨）">' +
     '<button class="remove-btn" onclick="removeProduct(this)">×</button>';
   return row;
 }
+function copyAllProducts() {
+  var rows = document.querySelectorAll('#productList .product-row');
+  if (rows.length === 0) { showToast('目前沒有品項可複製', false); return; }
+  var copies = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
+    copies.push({
+      name: inputs[0] ? inputs[0].value : '',
+      qty: inputs[1] ? inputs[1].value : '',
+      date: '', // 清空日期，讓使用者自己填
+      note: ''  // 清空備註
+    });
+  });
+  copies.forEach(function(c) {
+    var row = buildProductRow();
+    var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
+    if (inputs[0]) inputs[0].value = c.name;
+    if (inputs[1]) inputs[1].value = c.qty;
+    document.getElementById('productList').appendChild(row);
+  });
+  showToast('✅ 已複製 ' + copies.length + ' 個品項，請填入新的日期和備註');
+}
+ 
 function addProduct() { document.getElementById('productList').appendChild(buildProductRow()); }
+  document.querySelectorAll('#productList .prod-check').forEach(function(c){ c.checked = cb.checked; });
+}
+ 
+function batchApplyAll() {
+  var date = document.getElementById('batch-date').value;
+  var note = document.getElementById('batch-note').value.trim();
+  if (!date && !note) { showToast('請先填入日期或備註', false); return; }
+  document.querySelectorAll('#productList .product-row').forEach(function(row) {
+    var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
+    if (date && inputs[2]) inputs[2].value = date;
+    if (note && inputs[3]) inputs[3].value = note;
+  });
+  showToast('✅ 已套用到全部品項');
+}
+ 
+function batchApplyChecked() {
+  var date = document.getElementById('batch-date').value;
+  var note = document.getElementById('batch-note').value.trim();
+  if (!date && !note) { showToast('請先填入日期或備註', false); return; }
+  var count = 0;
+  document.querySelectorAll('#productList .product-row').forEach(function(row) {
+    var cb = row.querySelector('.prod-check');
+    if (cb && cb.checked) {
+      var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
+      if (date && inputs[2]) inputs[2].value = date;
+      if (note && inputs[3]) inputs[3].value = note;
+      count++;
+    }
+  });
+  if (count === 0) { showToast('請先勾選品項', false); return; }
+  showToast('✅ 已套用到 ' + count + ' 個勾選品項');
+}
 function removeProduct(btn) {
   if (document.querySelectorAll('#productList .product-row').length<=1) { showToast('至少需要一項商品',false); return; }
   btn.closest('.product-row').remove();
@@ -639,12 +718,13 @@ async function submitOrder() {
   var products = [];
   var allMonths = new Set();
   document.querySelectorAll('#productList .product-row').forEach(function(row) {
-    var inputs = row.querySelectorAll('input');
+    var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
     var pName = inputs[0].value.trim();
     var qty = parseInt(inputs[1].value)||0;
     var shipDate = inputs[2] ? inputs[2].value : '';
+    var pNote = inputs[3] ? inputs[3].value.trim() : '';
     if (pName&&qty>0) {
-      products.push({name:pName, qty:qty, shipDate:shipDate, status:'pending', orderNo:'', doneDate:''});
+      products.push({name:pName, qty:qty, shipDate:shipDate, note:pNote, status:'pending', orderNo:'', doneDate:''});
       if (shipDate) allMonths.add(shipDate.substring(0,7));
     }
   });
@@ -991,7 +1071,9 @@ function orderCardHTML(o, highlightYM, highlightProds) {
       '<span class="status-pill pending" onclick="openEditModal('+o.id+','+realIdx+')">⏳ 待出貨</span>';
     return '<div class="product-item '+status+'">' +
       '<div style="flex:1;">' +
-        '<div class="product-item-name">'+p.name+' <span class="product-item-qty">×'+p.qty+'</span></div>' +
+        '<div class="product-item-name">'+p.name+' <span class="product-item-qty">×'+p.qty+'</span>' +
+          (p.note?'<span style="font-size:11px;color:var(--accent2);font-weight:400;margin-left:6px;">'+p.note+'</span>':'') +
+        '</div>' +
         '<div style="display:flex;gap:8px;align-items:center;margin-top:3px;">' +
           (dateStr?'<span class="product-item-date">📅 '+dateStr+'</span>':'') +
           (p.orderNo?'<span style="font-size:10px;color:var(--muted);">📋 '+p.orderNo+'</span>':'') +
@@ -1036,10 +1118,13 @@ async function deleteOrder(id) {
  
 // SEARCH
 function doSearch() {
-  var q = document.getElementById('searchPhone').value.trim().replace(/-/g,'');
+  var q = document.getElementById('searchPhone').value.trim().replace(/-/g,'').replace(/\s/g,'');
   var container = document.getElementById('searchResult');
-  if (!q) { container.innerHTML='<div class="result-empty"><div class="big">🔍</div>輸入電話號碼即可查詢</div>'; return; }
-  var result = orders.filter(function(o){ return o.phone.replace(/-/g,'').includes(q); });
+  if (!q || q.length < 2) { container.innerHTML='<div class="result-empty"><div class="big">🔍</div>輸入電話號碼即可查詢</div>'; return; }
+  var result = orders.filter(function(o){
+    var phone = (o.phone||'').replace(/-/g,'').replace(/\s/g,'');
+    return phone.includes(q);
+  });
   if (searchStaffFilter!=='all') result=result.filter(function(o){ return o.staff===searchStaffFilter; });
   if (result.length===0) { container.innerHTML='<div class="result-empty"><div class="big">😕</div>找不到符合條件的記錄</div>'; return; }
  
@@ -1075,7 +1160,9 @@ function doSearch() {
         var dateStr=''; if(p.shipDate){var dp=p.shipDate.split('-');dateStr=dp[0]+'/'+parseInt(dp[1])+'/'+parseInt(dp[2]);}
         return '<div class="product-item '+status+'" style="margin-bottom:6px;">' +
           '<div style="flex:1;">' +
-            '<div class="product-item-name">'+p.name+' <span class="product-item-qty">×'+p.qty+'</span></div>' +
+            '<div class="product-item-name">'+p.name+' <span class="product-item-qty">×'+p.qty+'</span>' +
+              (p.note?'<span style="font-size:11px;color:var(--accent2);font-weight:400;margin-left:6px;">'+p.note+'</span>':'') +
+            '</div>' +
             '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' +
               (dateStr?'📅 '+dateStr+' ':'')+
               (p.orderNo?'📋 '+p.orderNo:'') +
@@ -1091,6 +1178,20 @@ function doSearch() {
     '</div>';
   }).join('');
  
+  // 訂單列表（附編輯整筆按鈕）
+  var orderList = result.map(function(o){
+    return '<div style="padding:12px 16px;background:var(--warm);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:13px;font-weight:700;">'+o.date+' · '+(o.expoName||'未填展覽')+'</div>' +
+        '<div style="font-size:12px;color:var(--muted);">'+
+          (o.type==='warehouse'?'🏪 門市取貨':'🏠 宅配')+' · 👤 '+(o.staff||'-')+
+          (o.orderNo?' · 📋 '+o.orderNo:'')+
+        '</div>' +
+      '</div>' +
+      '<button class="edit-btn" onclick="openOrderEditModal('+o.id+')" style="white-space:nowrap;">✏️ 編輯訂單</button>' +
+    '</div>';
+  }).join('');
+ 
   container.innerHTML = '<div class="detail-card">' +
     '<div style="font-family:\'Noto Serif TC\',serif;font-size:22px;font-weight:700;margin-bottom:4px;">'+name+'</div>' +
     '<div style="font-size:15px;color:var(--accent);font-weight:700;margin-bottom:14px;">📞 '+phone+'</div>' +
@@ -1100,9 +1201,81 @@ function doSearch() {
       '<span style="font-size:12px;color:var(--muted);padding:3px 9px;background:var(--warm);border-radius:6px;">共 '+result.length+' 筆</span>' +
       staffFound.map(function(s){return '<span class="staff-badge">👤 '+s+'</span>';}).join('') +
     '</div>' +
+    '<div class="detail-section">📋 訂單列表</div>' +
+    orderList +
     '<div class="detail-section">📅 依月份出貨明細</div>' +
     monthSections +
   '</div>';
+}
+ 
+// 編輯整筆訂單 Modal
+function openOrderEditModal(orderId) {
+  var o = orders.find(function(x){ return String(x.id)===String(orderId); });
+  if (!o) return;
+ 
+  // 動態建立 modal 內容
+  var staffOptions = staffList.map(function(s){
+    return '<option value="'+s+'"'+(o.staff===s?' selected':'')+'>'+s+'</option>';
+  }).join('');
+ 
+  document.getElementById('modalTitle').textContent = '✏️ 編輯訂單 — ' + o.name;
+  document.getElementById('modalSplitRows').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">客戶姓名</label>' +
+        '<input id="oe-name" type="text" value="'+o.name+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">電話</label>' +
+        '<input id="oe-phone" type="tel" value="'+o.phone+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">展覽名稱</label>' +
+        '<input id="oe-expo" type="text" value="'+(o.expoName||'')+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">寵物展月份</label>' +
+        '<input id="oe-month" type="month" value="'+(o.expoMonth||'')+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">鼎新單號</label>' +
+        '<input id="oe-orderno" type="text" value="'+(o.orderNo||'')+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+      '<div><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">負責同仁</label>' +
+        '<select id="oe-staff" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;">'+staffOptions+'</select></div>' +
+    '</div>' +
+    '<div style="margin-bottom:12px;"><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">收件地址</label>' +
+      '<input id="oe-address" type="text" value="'+(o.address||'')+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>' +
+    '<div style="margin-bottom:12px;"><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">備註</label>' +
+      '<input id="oe-note" type="text" value="'+(o.note||'')+'" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:13px;background:white;"></div>';
+ 
+  // 改變儲存按鈕行為
+  document.querySelector('.modal-btn-primary').onclick = function(){ saveOrderEdit(orderId); };
+  document.getElementById('modalQtyWarn').style.display = 'none';
+  document.querySelector('button[onclick="addSplitRow()"]').style.display = 'none';
+  modalOrderId = orderId;
+  modalProductIdx = null; // 代表編輯整筆
+  document.getElementById('editModal').classList.add('show');
+}
+ 
+async function saveOrderEdit(orderId) {
+  var o = orders.find(function(x){ return String(x.id)===String(orderId); });
+  if (!o) return;
+  o.name = document.getElementById('oe-name').value.trim();
+  o.phone = document.getElementById('oe-phone').value.trim();
+  o.expoName = document.getElementById('oe-expo').value.trim();
+  o.expoMonth = document.getElementById('oe-month').value;
+  o.orderNo = document.getElementById('oe-orderno').value.trim();
+  o.staff = document.getElementById('oe-staff').value;
+  o.address = document.getElementById('oe-address').value.trim();
+  o.note = document.getElementById('oe-note').value.trim();
+ 
+  showLoading('更新中…');
+  try {
+    var d = await api({action:'updateOrder', order:JSON.stringify(o)});
+    if (!d.ok) throw new Error(d.error);
+    closeModal();
+    // 重設按鈕
+    document.querySelector('.modal-btn-primary').onclick = saveModal;
+    document.querySelector('button[onclick="addSplitRow()"]').style.display = '';
+    doSearch();
+    showToast('✅ 訂單已更新！');
+  } catch { showToast('❌ 更新失敗',false); }
+  finally { hideLoading(); }
 }
  
 // HELPERS
