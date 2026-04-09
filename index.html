@@ -404,7 +404,7 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
 <!-- SEARCH -->
 <div class="tab-content" id="tab-search">
   <div class="search-bar-row">
-    <input type="tel" id="searchPhone" placeholder="輸入電話號碼查詢客戶出貨明細..." oninput="doSearch()" onkeyup="doSearch()">
+    <input type="text" id="searchPhone" placeholder="輸入電話號碼查詢客戶出貨明細..." oninput="doSearch()" onkeyup="doSearch()">
     <button class="search-btn" onclick="doSearch()">查詢</button>
   </div>
   <div id="searchStaffFilter" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:16px;"></div>
@@ -1134,43 +1134,57 @@ function orderCardHTML(o, highlightYM, highlightProds) {
       '<button class="delete-order-btn" onclick="deleteOrder('+o.id+')">刪除</button>' +
     '</div>' +
     '<div style="border-top:1px dashed var(--border);margin-top:10px;padding-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
-      '<button onclick="openBulkShipModal('+o.id+')" style="padding:7px 16px;background:#f0fdf4;border:1.5px solid #16a34a;color:#16a34a;border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✅ 整筆標記已出貨 + 填鼎新單號</button>' +
+      '<button onclick="openBulkShipModal('+o.id+',\''+highlightYM+'\')" style="padding:7px 16px;background:#f0fdf4;border:1.5px solid #16a34a;color:#16a34a;border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✅ 本月品項標記已出貨 + 填鼎新單號</button>' +
+      '<button onclick="openBulkShipModal('+o.id+',\'all\')" style="padding:7px 16px;background:#f0fdf4;border:1.5px dashed #16a34a;color:#16a34a;border-radius:8px;font-family:\'Noto Sans TC\',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✅ 整筆全部標記已出貨</button>' +
     '</div>' +
   '</div>';
 }
 
 // 整筆出貨 Modal
-function openBulkShipModal(orderId) {
+function openBulkShipModal(orderId, filterYM) {
   var o = orders.find(function(x){ return String(x.id)===String(orderId); });
   if (!o) return;
-  var orderNo = prompt('請輸入鼎新單號（可留空）：', o.orderNo||'');
-  if (orderNo === null) return; // 按取消
-  markAllShipped(orderId, orderNo.trim());
+  var label = filterYM && filterYM !== 'all' ? '本月（'+filterYM.replace('-','/')+'）' : '全部';
+  var orderNo = prompt('標記「'+label+'」品項已出貨\n請輸入鼎新單號（可留空）：', o.orderNo||'');
+  if (orderNo === null) return;
+  markAllShipped(orderId, orderNo.trim(), filterYM);
 }
 
-async function markAllShipped(orderId, orderNo) {
+async function markAllShipped(orderId, orderNo, filterYM) {
   var o = orders.find(function(x){ return String(x.id)===String(orderId); });
   if (!o) return;
   var today = new Date().toLocaleDateString('zh-TW');
-  o.orderNo = orderNo || o.orderNo || '';
+  if (orderNo) o.orderNo = orderNo;
   (o.products||[]).forEach(function(p) {
+    // 判斷此品項是否屬於該月份
+    var inMonth = filterYM === 'all' ||
+      (p.shipDate && p.shipDate.substring(0,7) === filterYM) ||
+      (!p.shipDate && (o.shipMonths||[]).includes(filterYM));
+    if (!inMonth) return;
     p.status = 'done';
-    p.orderNo = orderNo || p.orderNo || '';
+    if (orderNo) p.orderNo = orderNo;
     if (!p.doneDate) p.doneDate = today;
     if (p.splits) {
       p.splits.forEach(function(s) {
         s.status = 'done';
-        s.orderNo = orderNo || s.orderNo || '';
+        if (orderNo) s.orderNo = orderNo;
         if (!s.doneDate) s.doneDate = today;
       });
     }
   });
+  // 同步更新 shipMonths
+  var allMonths = new Set();
+  (o.products||[]).forEach(function(p){
+    if (p.shipDate) allMonths.add(p.shipDate.substring(0,7));
+  });
+  o.shipMonths = [...allMonths].sort();
+
   showLoading('更新中…');
   try {
     var d = await api({action:'updateOrder', order:JSON.stringify(o)});
     if (!d.ok) throw new Error(d.error);
     renderDashboard();
-    showToast('✅ 整筆已標記出貨！' + (orderNo ? ' 鼎新：'+orderNo : ''));
+    showToast('✅ 已標記出貨！' + (orderNo ? ' 鼎新：'+orderNo : ''));
   } catch { showToast('❌ 更新失敗', false); }
   finally { hideLoading(); }
 }
