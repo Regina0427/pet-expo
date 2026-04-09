@@ -1038,6 +1038,7 @@ function formatDate(val) {
   }
   return s;
 }
+function formatExpoMonth(val) {
   if (!val) return '';
   // 處理 ISO 格式如 2026-03-31T16:00:00.000Z
   var s = String(val);
@@ -1048,7 +1049,7 @@ function formatDate(val) {
 
 function formatPhone(val) {
   if (!val) return '';
-  var s = String(val).replace(/^'+/, ''); // 去掉 GAS 加的單引號前綴
+  var s = String(val).replace(/^'/, ''); // 去掉 GAS 加的單引號前綴
   // 如果是純數字且開頭不是0，自動補0（台灣手機09開頭）
   if (/^\d+$/.test(s) && s.length === 9) s = '0' + s;
   return s;
