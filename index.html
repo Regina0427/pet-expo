@@ -467,20 +467,53 @@ async function init() {
 
 // API
 async function api(params) {
-  var url = GAS_URL + '?' + new URLSearchParams(params).toString();
-  var res = await fetch(url, { redirect: 'follow' });
+  var url = GAS_URL;
+  var qs = new URLSearchParams(params).toString();
+  // 超過 2000 字元改用 no-cors POST（GAS 用 doPost 接收 parameter）
+  if (qs.length > 2000) {
+    try {
+      var res = await fetch(url + '?action=' + params.action, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: qs
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    } catch(e) {
+      // CORS 失敗時改拆小段 GET
+      return await apiChunked(params);
+    }
+  }
+  var res = await fetch(url + '?' + qs, { redirect: 'follow' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
 
-async function apiPost(params) {
-  // 用 no-cors POST 繞過 CORS，但無法讀回應，改用 GET 傳 JSON
-  var jsonStr = JSON.stringify(params);
-  var encoded = encodeURIComponent(jsonStr);
-  var url = GAS_URL + '?payload=' + encoded;
-  var res = await fetch(url, { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+async function apiChunked(params) {
+  // 把 order JSON 分段存到 GAS Cache，再組合執行
+  var orderStr = params.order || '';
+  if (!orderStr || orderStr.length < 2000) {
+    var res = await fetch(GAS_URL + '?' + new URLSearchParams(params).toString(), { redirect: 'follow' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+  var CHUNK = 1500;
+  var chunks = Math.ceil(orderStr.length / CHUNK);
+  var cacheId = Date.now().toString();
+  for (var i = 0; i < chunks; i++) {
+    var chunk = orderStr.substring(i * CHUNK, (i+1) * CHUNK);
+    var p = { action: 'cacheChunk', cacheId: cacheId, idx: i, total: chunks, data: chunk };
+    var res = await fetch(GAS_URL + '?' + new URLSearchParams(p).toString(), { redirect: 'follow' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+  }
+  // 最後呼叫實際動作
+  var p2 = Object.assign({}, params);
+  delete p2.order;
+  p2.useCacheId = cacheId;
+  p2.cacheTotal = chunks;
+  var res2 = await fetch(GAS_URL + '?' + new URLSearchParams(p2).toString(), { redirect: 'follow' });
+  if (!res2.ok) throw new Error('HTTP ' + res2.status);
+  return res2.json();
 }
 async function fetchOrders() { var d = await api({action:'getOrders'}); if (!d.ok) throw new Error(d.error); orders = d.orders; }
 async function fetchStaff() { var d = await api({action:'getStaff'}); if (!d.ok) throw new Error(d.error); staffList = d.staff; }
