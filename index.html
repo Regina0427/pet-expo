@@ -269,6 +269,7 @@ header{background:var(--ink);color:var(--cream);padding:16px 24px;display:flex;a
       <span id="syncText" style="color:#f0c080;font-size:11px;">連線中</span>
     </div>
     <div class="today-badge" id="todayBadge"></div>
+    <button onclick="window.location.href=window.location.pathname+'?reset=1'" style="padding:5px 10px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--muted);border-radius:8px;font-size:10px;cursor:pointer;">⚙️ 換網址</button>
   </div>
 </header>
 
@@ -441,6 +442,11 @@ var mNames = ['一','二','三','四','五','六','七','八','九','十','十�
 document.getElementById('todayBadge').textContent = now.getFullYear() + ' · ' + mNames[now.getMonth()] + '月';
 
 // init
+if (window.location.search.includes('reset=1')) {
+  localStorage.removeItem(GAS_KEY);
+  GAS_URL = '';
+  window.history.replaceState({}, '', window.location.pathname);
+}
 if (GAS_URL) { document.getElementById('setupScreen').style.display = 'none'; init(); }
 
 function saveSetup() {
