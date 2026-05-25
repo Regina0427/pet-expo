@@ -496,22 +496,21 @@ async function api(params) {
 }
 
 async function apiChunked(params) {
-  // 把 order JSON 分段存到 GAS Cache，再組合執行
   var orderStr = params.order || '';
-  if (!orderStr || orderStr.length < 2000) {
-    var res = await fetch(GAS_URL + '?' + new URLSearchParams(params).toString(), { redirect: 'follow' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
-  }
   var CHUNK = 1500;
   var chunks = Math.ceil(orderStr.length / CHUNK);
   var cacheId = Date.now().toString();
+
+  // 分段傳送
   for (var i = 0; i < chunks; i++) {
     var chunk = orderStr.substring(i * CHUNK, (i+1) * CHUNK);
     var p = { action: 'cacheChunk', cacheId: cacheId, idx: i, total: chunks, data: chunk };
     var res = await fetch(GAS_URL + '?' + new URLSearchParams(p).toString(), { redirect: 'follow' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
+    var d = await res.json();
+    if (!d.ok) throw new Error(d.error || '分段傳送失敗');
   }
+
   // 最後呼叫實際動作
   var p2 = Object.assign({}, params);
   delete p2.order;
@@ -619,10 +618,29 @@ function buildProductRow() {
     '<input type="checkbox" class="prod-check" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);margin-top:10px;">' +
     '<input type="text" placeholder="商品名稱">' +
     '<input type="number" placeholder="數量" min="1">' +
-    '<input type="date" class="date-col">' +
+    '<div class="date-col" style="display:flex;flex-direction:column;gap:3px;">' +
+      '<input type="date" style="width:100%;">' +
+      '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;">' +
+        '<input type="checkbox" class="pending-notify" onchange="togglePendingNotify(this)" style="width:12px;height:12px;accent-color:var(--accent2);">待通知' +
+      '</label>' +
+    '</div>' +
     '<input type="text" placeholder="備註（如：第1次出貨）">' +
     '<button class="remove-btn" onclick="removeProduct(this)">×</button>';
   return row;
+}
+
+function togglePendingNotify(cb) {
+  var dateInput = cb.closest('.date-col').querySelector('input[type=date]');
+  if (cb.checked) {
+    dateInput.dataset.savedVal = dateInput.value;
+    dateInput.value = '';
+    dateInput.disabled = true;
+    dateInput.style.opacity = '0.4';
+  } else {
+    dateInput.disabled = false;
+    dateInput.style.opacity = '1';
+    dateInput.value = dateInput.dataset.savedVal || '';
+  }
 }
 function copyAllProducts() {
   var rows = document.querySelectorAll('#productList .product-row');
@@ -762,11 +780,14 @@ async function submitOrder() {
     var inputs = row.querySelectorAll('input[type=text],input[type=number],input[type=date]');
     var pName = inputs[0].value.trim();
     var qty = parseInt(inputs[1].value)||0;
-    var shipDate = inputs[2] ? inputs[2].value : '';
+    var dateInput = row.querySelector('input[type=date]');
+    var pendingCb = row.querySelector('.pending-notify');
+    var isPending = pendingCb && pendingCb.checked;
+    var shipDate = isPending ? '待通知' : (dateInput ? dateInput.value : '');
     var pNote = inputs[3] ? inputs[3].value.trim() : '';
     if (pName&&qty>0) {
       products.push({name:pName, qty:qty, shipDate:shipDate, note:pNote, status:'pending', orderNo:'', doneDate:''});
-      if (shipDate) allMonths.add(shipDate.substring(0,7));
+      if (shipDate && shipDate !== '待通知') allMonths.add(shipDate.substring(0,7));
     }
   });
   if (products.length===0) { showToast('請至少填寫一項商品',false); return; }
@@ -1135,7 +1156,12 @@ function orderCardHTML(o, highlightYM, highlightProds) {
 
     // 一般單筆顯示
     var status = p.status||'pending';
-    var dateStr = ''; if(p.shipDate){var dp=p.shipDate.split('-');dateStr=dp[0]+'/'+parseInt(dp[1])+'/'+parseInt(dp[2]);}
+    var dateStr = '';
+    if (p.shipDate === '待通知') {
+      dateStr = '📅 待通知';
+    } else if (p.shipDate) {
+      var dp=p.shipDate.split('-'); dateStr=dp[0]+'/'+parseInt(dp[1])+'/'+parseInt(dp[2]);
+    }
     var statusLabel = status==='done' ?
       '<span class="status-pill done" onclick="openEditModal('+o.id+','+realIdx+')">✅ 已出貨'+(p.doneDate?' · '+p.doneDate:'')+'</span>' :
       '<span class="status-pill pending" onclick="openEditModal('+o.id+','+realIdx+')">⏳ 待出貨</span>';
