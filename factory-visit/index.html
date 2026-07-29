@@ -128,6 +128,41 @@
     font-weight:600;
   }
 
+  .test-list{
+    margin-top:10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .test-item{
+    background:#fff;
+    border:1px solid #eae4d6;
+    border-left:3px solid var(--green);
+    border-radius:8px;
+    padding:8px 10px;
+  }
+  .test-name{
+    font-size:12px;
+    font-weight:700;
+    color:var(--navy);
+    margin-bottom:3px;
+  }
+  .test-name .en{
+    font-weight:500;
+    color:var(--sub);
+    font-size:10.5px;
+  }
+  .test-detail{
+    font-size:11px;
+    line-height:1.6;
+    color:var(--sub);
+  }
+  .test-detail b{ color:var(--ink); }
+  .test-detail .reason{
+    display:block;
+    margin-top:2px;
+  }
+
   /* ---- Batch tab ---- */
   .row{ display:grid; grid-template-columns:72px 1fr; gap:0; margin-bottom:14px; border-radius:12px; overflow:hidden; box-shadow:0 3px 12px rgba(28,58,94,0.08); background:#fff; }
   .label{ display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; text-align:center; padding:12px 4px; letter-spacing:0.03em; }
@@ -289,7 +324,7 @@
 
     <div class="key-finding">
       <div class="kf-title">為什麼要看這些紀錄</div>
-      每一個生產環節都有對應的管制紀錄,是判斷「問題出在哪一關」的唯一依據。膨脹通常對應<b>殺菌/封口</b>環節,異味通常對應<b>原料/殺菌</b>環節——帶著這份說明,可以直接對照工廠有沒有缺漏。
+      每一個生產環節都有對應的管制紀錄,是判斷「問題出在哪一關」的唯一依據。膨脹通常對應<b>殺菌/封口</b>環節,異味通常對應<b>原料/殺菌</b>環節。
     </div>
 
     <div class="proc-step">
@@ -342,7 +377,44 @@
       <div>
         <div class="proc-title">成品放行</div>
         <div class="proc-records">微生物檢驗報告(每批/抽批)、成品放行核可紀錄、留樣紀錄</div>
-        <div class="proc-why"><b>為什麼重要:</b>PE206B18 微生物合格但仍有客訴,代表放行標準可能沒有涵蓋到氧化/新鮮度相關指標(POV、TVB-N、組織胺)。<span class="proc-flag">對應客訴</span></div>
+        <div class="proc-why"><b>為什麼重要:</b>PE206B18 微生物合格但仍有客訴,代表放行標準可能沒有涵蓋到氧化/新鮮度相關指標。<span class="proc-flag">對應客訴</span></div>
+        <div class="test-list">
+          <div class="test-item">
+            <div class="test-name">過氧化價 <span class="en">POV, Peroxide Value</span></div>
+            <div class="test-detail">
+              <span>說明:測量油脂<b>初期氧化</b>產生的過氧化物濃度,反映油脂剛開始劣化的程度。</span>
+              <span class="reason">理由:磷蝦油富含 Omega-3 不飽和脂肪酸,極易氧化,是判斷「油脂是否開始酸敗」最基本的指標。</span>
+            </div>
+          </div>
+          <div class="test-item">
+            <div class="test-name">酸價 <span class="en">AV, Acid Value</span></div>
+            <div class="test-detail">
+              <span>說明:測量油脂水解後產生的游離脂肪酸含量,數值較 POV 穩定,不會隨氧化時間拉長而下降。</span>
+              <span class="reason">理由:可與 POV 互相佐證,避免因過氧化物已分解而低估氧化程度。</span>
+            </div>
+          </div>
+          <div class="test-item">
+            <div class="test-name">硫代巴比妥酸反應物質 <span class="en">TBARS</span></div>
+            <div class="test-detail">
+              <span>說明:測量油脂<b>氧化後期</b>產物(丙二醛),魚油類產品常用此指標。</span>
+              <span class="reason">理由:比 POV 更能對應「已經產生明顯異味」的程度,適合用來解釋目前聞到的魚腥/腐敗味。</span>
+            </div>
+          </div>
+          <div class="test-item">
+            <div class="test-name">總揮發性鹽基氮 <span class="en">TVB-N</span></div>
+            <div class="test-detail">
+              <span>說明:測量肉品/水產分解產生的揮發性含氮化合物,是常見的新鮮度指標。</span>
+              <span class="reason">理由:可佐證原料在進貨或加工前是否已經開始劣化,而非成品加工過程造成。</span>
+            </div>
+          </div>
+          <div class="test-item">
+            <div class="test-name">組織胺 <span class="en">Histamine</span></div>
+            <div class="test-detail">
+              <span>說明:魚肉中的組胺酸若在原料階段已分解,會生成組織胺,且此物質<b>耐熱</b>,殺菌無法去除。</span>
+              <span class="reason">理由:可直接對應 PE206B18 客訴的嘔吐、拉肚子症狀,是目前最關鍵的一項送驗需求。</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
